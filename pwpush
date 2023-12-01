@@ -1,48 +1,90 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# PYTHON_ARGCOMPLETE_OK
 
-'''
+"""
 __author__ = 'Adam Kierstein'
 __copyright__ = ''
 __credits__ = []
 __license__ = ''
-__version__ = '1.1'
+__version__ = '1.2'
 __maintainer__ = 'abkierstein@gmail.com'
 __email__ = 'abkierstein@gmail.com'
 __status__ = 'published'
-'''
+"""
 
 import argparse
-import requests
+import json
 import secrets
 import string
-import json
+
+import argcomplete
+import requests
 
 
 def autogen_pw():
     alphabet = string.ascii_letters + string.digits + string.punctuation
     password = ''.join(secrets.choice(alphabet)
-                       for i in range(20))  # for a 20-character password
+                       for _ in range(20))  # for a 20-character password
     return password
 
 
 parser = argparse.ArgumentParser(description='Accept a password from stdin.')
 parser.add_argument('-u', '--url', type=str,
-        help="Optional: Specify the URL of a local pwpush instance. ex: pwpush -u https://foobar.com", default="https://pwpush.com")
+                    help="Optional: Specify the URL of a local pwpush instance. ex: pwpush -u https://foobar.com",
+                    default="https://pwpush.com")
+authentication_group = parser.add_argument_group('User authentication')
+authentication_group.add_argument('-U', '--user', type=str, required=False,
+                                  help="Optional: Specify the user email to login to pwpush instance.")
+authentication_group.add_argument('-T', '--token', type=str, required=False,
+                                  help="Optional: Specify the user token to login to pwpush instance.")
+authentication_group.add_argument('-n', '--note', type=str, required=False,
+                                  help="Optional: If authenticated, the URL encoded note for this push. Visible only "
+                                       "to the push creator.")
 parser.add_argument('-p', '--password', type=str,
-        help="Optional: User defined password.", default=autogen_pw())
-parser.add_argument('-d', '--days', type=int,
-        help="Optional: Specify the amount of days after which the password should expire.", default=2)
-parser.add_argument('-v', '--views', type=int,
-        help="Optional: Specify the amount of views after which the password should expire.", default=10)
+                    help="Optional: User defined password.", default=autogen_pw())
+parser.add_argument('-P', '--passphrase', type=str, required=False,
+                    help="Optional: Specify passphrase to give to view the created push.")
+parser.add_argument('-r', '--retrieval-step', action='store_true', required=False,
+                    help="Optional: Flag to avoid  chat systems and URL scanners from eating up views.")
+expiration_group = parser.add_argument_group('Expiration of pushes')
+expiration_group.add_argument('-d', '--days', type=int,
+                              help="Optional: Specify the amount of days after which the password should expire. "
+                                   "Defaults to 2.",
+                              default=2)
+expiration_group.add_argument('-v', '--views', type=int,
+                              help="Optional: Specify the amount of views after which the password should expire. "
+                                   "Defaults to 10.",
+                              default=10)
+expiration_group.add_argument('-D', '--deletable', action='store_true', required=False,
+                              help="Optional: Flag to allow users to delete password once retrieved.")
+argcomplete.autocomplete(parser)
 args = parser.parse_args()
+
+headers = {}
 
 payload = {
     'password[payload]': args.password,
     'password[expire_after_days]': args.days,
-    'password[expire_after_views]': args.views
+    'password[expire_after_views]': args.views,
+    'password[retrieval_step]': str(args.retrieval_step).lower(),
+    'password[deletable_by_viewer]': str(args.deletable).lower(),
 }
-r = requests.post(f"{args.url}/p.json", data=payload)
+
+if (args.user and not args.token) or (args.token and not args.user):
+    parser.error("Arguments --user and --token are both required if one of these is given.")
+
+if args.user and args.token:
+    headers['X-User-Email'] = args.user
+    headers['X-User-Token'] = args.token
+
+    if args.note:
+        payload['password[note]'] = args.note
+
+if args.passphrase:
+    payload['password[passphrase]'] = args.passphrase
+
+r = requests.post(f"{args.url}/p.json", headers=headers, data=payload)
 r_response = json.loads(r.content)['url_token']
 
 # Console output
