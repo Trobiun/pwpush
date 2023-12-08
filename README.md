@@ -1,7 +1,9 @@
 # pwpush
+
 Command line Python password pusher via pwpush.com
 
-If no password argument is given, a 20 character password comprised of letters, digits, and punctuation is generated.
+If no password argument is given, it reads password from stdin if possible or a 20 character password comprised of
+letters, digits, and punctuation is generated.
 
 ### Usage:
 
@@ -32,7 +34,8 @@ Expiration of pushes:
   -D, --deletable       Optional: Flag to allow users to delete password once retrieved.
 ```
 
-ex.
+Examples:
+
 ```
 > ./pwpush
 Pass is: GKtPq:@%Q'r2Jakf7RQ0
@@ -41,4 +44,8 @@ URL: https://pwpush.com/p/tkfrluql1hi0f6qt
 > ./pwpush -p foobar -u http://localhost:5100 -v 5
 Pass is: foobar
 URL: http://localhost:5100/p/630thim25imnm2x1
+
+> echo "foobar" | ./pwpush
+Pass is: foobar
+URL: https://pwpush.com/p/diovsv-wkdpsqa
 ```

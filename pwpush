@@ -7,7 +7,7 @@ __author__ = 'Adam Kierstein'
 __copyright__ = ''
 __credits__ = []
 __license__ = ''
-__version__ = '1.2'
+__version__ = '1.3'
 __maintainer__ = 'abkierstein@gmail.com'
 __email__ = 'abkierstein@gmail.com'
 __status__ = 'published'
@@ -17,15 +17,18 @@ import argparse
 import json
 import secrets
 import string
+import sys
 
 import argcomplete
 import requests
 
 
-def autogen_pw():
+def autogen_or_stdin_pw():
     alphabet = string.ascii_letters + string.digits + string.punctuation
-    password = ''.join(secrets.choice(alphabet)
-                       for _ in range(20))  # for a 20-character password
+    if not sys.stdin.isatty():
+        password = sys.stdin.readline().rstrip()
+    else:
+        password = ''.join(secrets.choice(alphabet) for _ in range(20))  # for a 20-character password
     return password
 
 
@@ -42,7 +45,7 @@ authentication_group.add_argument('-n', '--note', type=str, required=False,
                                   help="Optional: If authenticated, the URL encoded note for this push. Visible only "
                                        "to the push creator.")
 parser.add_argument('-p', '--password', type=str,
-                    help="Optional: User defined password.", default=autogen_pw())
+                    help="Optional: User defined password.", default=autogen_or_stdin_pw())
 parser.add_argument('-P', '--passphrase', type=str, required=False,
                     help="Optional: Specify passphrase to give to view the created push.")
 parser.add_argument('-r', '--retrieval-step', action='store_true', required=False,
