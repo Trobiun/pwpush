@@ -7,7 +7,7 @@ __author__ = 'Adam Kierstein'
 __copyright__ = ''
 __credits__ = []
 __license__ = ''
-__version__ = '1.3'
+__version__ = '1.4'
 __maintainer__ = 'abkierstein@gmail.com'
 __email__ = 'abkierstein@gmail.com'
 __status__ = 'published'
@@ -37,8 +37,6 @@ parser.add_argument('-u', '--url', type=str,
                     help="Optional: Specify the URL of a local pwpush instance. ex: pwpush -u https://foobar.com",
                     default="https://pwpush.com")
 authentication_group = parser.add_argument_group('User authentication')
-authentication_group.add_argument('-U', '--user', type=str, required=False,
-                                  help="Optional: Specify the user email to login to pwpush instance.")
 authentication_group.add_argument('-T', '--token', type=str, required=False,
                                   help="Optional: Specify the user token to login to pwpush instance.")
 authentication_group.add_argument('-n', '--note', type=str, required=False,
@@ -74,12 +72,8 @@ payload = {
     'password[deletable_by_viewer]': str(args.deletable).lower(),
 }
 
-if (args.user and not args.token) or (args.token and not args.user):
-    parser.error("Arguments --user and --token are both required if one of these is given.")
-
-if args.user and args.token:
-    headers['X-User-Email'] = args.user
-    headers['X-User-Token'] = args.token
+if args.token:
+    headers['Authorization'] = f'Bearer {args.token}'
 
     if args.note:
         payload['password[note]'] = args.note
