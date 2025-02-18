@@ -8,7 +8,7 @@ letters, digits, and punctuation is generated.
 ### Usage:
 
 ```
-usage: pwpush [-h] [-u URL] [-U USER] [-T TOKEN] [-n NOTE] [-p PASSWORD] [-P PASSPHRASE] [-r] [-d DAYS] [-v VIEWS] [-D]
+usage: pwpush [-h] [-u URL] [-T TOKEN] [-n NOTE] [-p PASSWORD] [-P PASSPHRASE] [-r] [-d DAYS] [-v VIEWS] [-D]
 
 Accept a password from stdin.
 
@@ -22,9 +22,8 @@ options:
   -r, --retrieval-step  Optional: Flag to avoid chat systems and URL scanners from eating up views.
 
 User authentication:
-  -U USER, --user USER  Optional: Specify the user email to login to pwpush instance.
   -T TOKEN, --token TOKEN
-                        Optional: Specify the user token to login to pwpush instance.
+                        Optional: Specify the Bearer token to login to pwpush instance.
   -n NOTE, --note NOTE  Optional: If authenticated, the URL encoded note for this push. Visible only to the push creator.
 
 Expiration of pushes:

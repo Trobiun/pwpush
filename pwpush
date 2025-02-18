@@ -38,7 +38,7 @@ parser.add_argument('-u', '--url', type=str,
                     default="https://pwpush.com")
 authentication_group = parser.add_argument_group('User authentication')
 authentication_group.add_argument('-T', '--token', type=str, required=False,
-                                  help="Optional: Specify the user token to login to pwpush instance.")
+                                  help="Optional: Specify the Bearer token to login to pwpush instance.")
 authentication_group.add_argument('-n', '--note', type=str, required=False,
                                   help="Optional: If authenticated, the URL encoded note for this push. Visible only "
                                        "to the push creator.")
